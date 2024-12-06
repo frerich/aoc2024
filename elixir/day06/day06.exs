@@ -26,11 +26,9 @@ defmodule Day06 do
   end
 
   def part_two(lab, guard) do
-    {start, _dir} = guard
+    visited = lab |> path(guard) |> Enum.drop(1) |> Enum.map(fn {pos, _dir} -> pos end) |> Enum.uniq()
 
-    visited = lab |> path(guard) |> Enum.map(fn {pos, _dir} -> pos end) |> Enum.uniq()
-
-    (visited -- [start])
+    visited
     |> Task.async_stream(fn pos ->
       loops? = lab |> MapSet.put(pos) |> path_loop?(guard)
       if loops?, do: 1, else: 0
