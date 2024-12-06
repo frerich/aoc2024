@@ -30,9 +30,13 @@ defmodule Day06 do
 
     visited = lab |> path(guard) |> Enum.map(fn {pos, _dir} -> pos end) |> Enum.uniq()
 
-    Enum.count(visited -- [start], fn pos ->
-      lab |> MapSet.put(pos) |> path_loop?(guard)
+    (visited -- [start])
+    |> Task.async_stream(fn pos ->
+      loops? = lab |> MapSet.put(pos) |> path_loop?(guard)
+      if loops?, do: 1, else: 0
     end)
+    |> Enum.map(fn {:ok, i} -> i end)
+    |> Enum.sum()
   end
 
   def path_loop?(lab, guard) do
